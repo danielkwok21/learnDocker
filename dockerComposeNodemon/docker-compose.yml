@@ -1,0 +1,17 @@
+services:
+
+  # Must have
+  # Specified custom name
+  my_node_app:
+    build: ./app
+
+    # Must have
+    # externalPort:internalPort
+    ports:
+      - "4000:4000"
+
+    # Nice to have
+    # mounts local /app to container's /usr/src/app
+    # to allow for hot reload.
+    volumes:
+      - ./app:/usr/src/app
