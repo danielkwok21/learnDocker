@@ -18,4 +18,4 @@ Each directory is a concept in Docker.
 |docker run -p `external-port`:`internal-port` `image-name` | Run image named `image-name` and redirect traffic from container's port at `internal-port` to host's port at `external-port`|
 |docker logs `container-id` -f | Print & follow container's logs|
 |docker container prune | Remove all container not running|
-|docker image prune -a | Remove all image without container|
+|docker image prune | Remove all image without container|
