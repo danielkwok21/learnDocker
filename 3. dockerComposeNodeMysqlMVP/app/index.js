@@ -1,14 +1,50 @@
 const express = require('express')
 const app = express()
 const port = 4000
-const mysql = require('mysql2')
+const mysql = require('mysql2/promise')
 
-const con = mysql.createConnection({
-  host: "my_mysql_db",
-  user: "root",
-  password: "123456",
-  database: "learnDocker"
-});
+
+let con
+
+connectDB()
+
+function connectDB() {
+  /**
+   * https://docs.docker.com/compose/startup-order/
+   */
+  const MAX_TRIES = 4
+  const WAIT_IN_SECONDS = 10
+
+  for (let i = 0; i < MAX_TRIES; i++) {
+    try {
+      const timer = setTimeout(async () => {
+
+        /**
+         * All values from docker-compose.yml
+         * A better way is to use environment variables
+         * https://docs.docker.com/compose/environment-variables/#pass-environment-variables-to-containers
+         * 
+         * But we'll keep it simple here
+         */
+        con = await mysql.createConnection({
+          host: "my_mysql_db",
+          user: "daniel",
+          password: "123456",
+          database: "learnDocker"
+        });
+      }, WAIT_IN_SECONDS * 1000)
+
+      console.log(`Success. Connected to db`)
+      console.log(con)
+      clearTimeout(timer)
+      break
+
+    } catch (err) {
+      console.log(`Errored. Number of retries left:${MAX_TRIES - i}`)
+    }
+  }
+
+}
 
 /**
  * Gets all users
@@ -43,7 +79,7 @@ app.get('/insert', async (req, res) => {
 /**
  * View tables
  */
- app.get('/tables', async (req, res) => {
+app.get('/tables', async (req, res) => {
   try {
     const result = await query(con, `show tables;`)
     res.send({

@@ -5,7 +5,7 @@ services:
     environment:
       - MYSQL_DATABASE=learnDocker
       - MYSQL_USER=daniel
-      - MYSQL_PASSOWRD=123456
+      - MYSQL_PASSWORD=123456
       - MYSQL_ROOT_PASSWORD=123456
     restart: always
   
@@ -20,5 +20,6 @@ services:
       - "4000:4000"
     volumes:
       - ./app:/usr/src/app
+    restart: always
     depends_on:
       - my_mysql_db
