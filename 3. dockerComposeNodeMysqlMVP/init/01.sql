@@ -9,3 +9,8 @@ CREATE TABLE user (
     name varchar(100) default null,
     primary key (id)
 );
+
+-- SEED DATA
+INSERT INTO user (name) VALUES ('mark');
+INSERT INTO user (name) VALUES ('jacob');
+INSERT INTO user (name) VALUES ('sally');

@@ -11,6 +11,7 @@ services:
   
     # To initialize MYSQL db with relevent schemas
     # Copied local init directory into container's /docker-entrypoint-initdb.d directory
+    # https://hub.docker.com/_/mysql#:~:text=Initializing%20a%20fresh%20instance
     volumes:
       - ./init:/docker-entrypoint-initdb.d
 

@@ -3,45 +3,55 @@ const app = express()
 const port = 4000
 const mysql = require('mysql2/promise')
 
-
 let con
 
 connectDB()
 
-function connectDB() {
-  /**
-   * https://docs.docker.com/compose/startup-order/
-   */
-  const MAX_TRIES = 4
-  const WAIT_IN_SECONDS = 10
+/**
+ * https://docs.docker.com/compose/startup-order/
+ * 
+ * Manually configure retries to connect to db every 5 seconds.
+ * Max retry 5 times
+ */
+async function connectDB() {
+  const MAX_TRIES = 5
+  const WAIT_DURATION_IN_SECONDS = 5
+
+  console.log(`connectDB... (waiting ${WAIT_DURATION_IN_SECONDS} seconds to connect to db)`)
 
   for (let i = 0; i < MAX_TRIES; i++) {
     try {
-      const timer = setTimeout(async () => {
+      await wait(WAIT_DURATION_IN_SECONDS)
 
-        /**
-         * All values from docker-compose.yml
-         * A better way is to use environment variables
-         * https://docs.docker.com/compose/environment-variables/#pass-environment-variables-to-containers
-         * 
-         * But we'll keep it simple here
-         */
-        con = await mysql.createConnection({
-          host: "my_mysql_db",
-          user: "daniel",
-          password: "123456",
-          database: "learnDocker"
-        });
-      }, WAIT_IN_SECONDS * 1000)
+      /**
+       * All values from docker-compose.yml
+       * A better way is to use environment variables
+       * https://docs.docker.com/compose/environment-variables/#pass-environment-variables-to-containers
+       * 
+       * But we'll keep it simple here
+       */
+      con = await mysql.createConnection({
+        host: "my_mysql_db",
+        user: "daniel",
+        password: "123456",
+        database: "learnDocker"
+      });
 
       console.log(`Success. Connected to db`)
-      console.log(con)
-      clearTimeout(timer)
       break
 
     } catch (err) {
-      console.log(`Errored. Number of retries left:${MAX_TRIES - i}`)
+      console.log(err.toString())
+      console.log(`Errored. Number of retries left:${MAX_TRIES - i}. Next attempt in ${WAIT_DURATION_IN_SECONDS} seconds.`)
     }
+  }
+
+  function wait(seconds = 1) {
+    return new Promise((res, rej) => {
+      setTimeout(() => {
+        res()
+      }, seconds * 1000)
+    })
   }
 
 }
@@ -61,49 +71,15 @@ app.get('/', async (req, res) => {
   }
 })
 
-/**
- * Inserts a random user into table
- */
-app.get('/insert', async (req, res) => {
-  try {
-    const name = Math.random() * 10000
-    await query(con, `INSERT INTO user (name) VALUES (${name});`)
-    res.send({
-      success: true
-    })
-  } catch (err) {
-    res.status(400).send(err.toString())
-  }
-})
-
-/**
- * View tables
- */
-app.get('/tables', async (req, res) => {
-  try {
-    const result = await query(con, `show tables;`)
-    res.send({
-      success: true,
-      result
-    })
-  } catch (err) {
-    res.status(400).send(err.toString())
-  }
-})
-
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 })
 
 function query(con, query) {
-  return new Promise((res, rej) => {
-    if (!con) {
-      rej("No connection found")
-    } else {
-      con.query(query, function (err, result) {
-        if (err) throw err;
-        res(result)
-      });
-    }
-  })
+  if(!con){
+    return Promise.reject("No connection found")
+  }
+
+  return con.execute(query)
+  .then(([rows, fields]) => rows)
 }
