@@ -1,0 +1,37 @@
+services:
+  my_mysql_db:
+    image: mysql:8.0
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      - MYSQL_DATABASE=learnDocker
+      - MYSQL_USER=daniel
+      - MYSQL_PASSWORD=123456
+      - MYSQL_ROOT_PASSWORD=123456
+    restart: always
+    volumes:
+      - ./init:/docker-entrypoint-initdb.d
+
+      # Links container's "/var/lib/mysql" to local "my_volume" 
+      - my_volume:/var/lib/mysql
+
+  my_node_app:
+    build: ./app
+    ports:
+      - "4000:4000"
+    volumes:
+      - ./app:/usr/src/app
+    restart: always
+    depends_on:
+      - my_mysql_db
+
+# "my_volume" is a self-defined name
+# can be anything
+# everything else is docker syntax, don't change.
+#
+# Example: 
+# volumes:
+#   <-my-volume-name->:
+#     driver: local
+volumes:
+  my_volume:
+    driver: local
