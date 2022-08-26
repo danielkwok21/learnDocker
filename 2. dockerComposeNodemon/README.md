@@ -8,3 +8,4 @@ docker-compose up
 
 # Hard lessons
 1. Keep Dockerfile within [./app](./app) directory. Not the root directory.
+2. if running `docker build`, must run it at the same level at which Dockerfile exists. In this case, within [./app](./app) directory
