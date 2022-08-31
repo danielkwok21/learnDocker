@@ -10,7 +10,12 @@ Goes over core concepts like
 # Clean previous containers, images and volumes
 docker container prune && docker volume prune && docker image prune -a
 
+# Install node_modules
+cd app
+npm install
+
 # Start service
+cd ..
 docker-compose up
 ```
 

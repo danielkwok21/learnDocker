@@ -3,6 +3,12 @@ Instead of specifying a bunch of flags during `docker run` (e.g. -v for volume, 
 
 # Getting started
 ```bash
+# Install node_modules
+cd app
+npm install
+
+# Start container
+cd ..
 docker-compose up
 ```
 
