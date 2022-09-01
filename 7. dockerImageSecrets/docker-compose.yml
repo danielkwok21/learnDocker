@@ -1,0 +1,15 @@
+services:
+
+  my_node_app:
+    build: ./app
+
+    ports:
+      - "4000:4000"
+
+    volumes:
+      - ./app:/usr/src/app
+
+    # Relay docker environment variables into service environment variables
+    environment: 
+      DOCKER_NAME: ${ENV_NAME}
+      DOCKER_AGE: ${ENV_AGE}
